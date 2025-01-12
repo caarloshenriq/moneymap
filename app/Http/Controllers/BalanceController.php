@@ -11,9 +11,8 @@ class BalanceController extends Controller
 {
     public function index()
     {
-
-        $balances = Balance::where('user_id', Auth::user()->id)->get();
-        return $balances;
+        $balances = Balance::where('user_id', Auth::user()->id)->paginate(10);
+        return view('balance.index', compact('balances'));
     }
 
     public function create()
@@ -27,6 +26,6 @@ class BalanceController extends Controller
         $data['user_id'] = Auth::user()->id;
         Balance::create($data);
         
-        return redirect()->route('balance.create');
+        return redirect()->route('balance.index');
     }
 }
