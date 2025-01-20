@@ -25,4 +25,23 @@ class Balance extends Model
         'updated_at',
         'created_at'
     ];
+
+    /**
+     * Get the monthly summary of entries and exits grouped by month.
+     *
+     * @param int $userId
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getMonthlySummary(int $userId)
+    {
+        return self::selectRaw("
+                DATE_FORMAT(date, '%Y-%m') as month,
+                SUM(CASE WHEN type = 'P' THEN amount ELSE 0 END) as total_entries,
+                SUM(CASE WHEN type = 'E' THEN amount ELSE 0 END) as total_exits
+            ")
+            ->where('user_id', $userId)
+            ->groupBy('month')
+            ->orderBy('month', 'desc')
+            ->get();
+    }
 }

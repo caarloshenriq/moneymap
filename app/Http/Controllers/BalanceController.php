@@ -25,7 +25,20 @@ class BalanceController extends Controller
         $data = $request->except('_token');
         $data['user_id'] = Auth::user()->id;
         Balance::create($data);
-        
+
         return redirect()->route('balance.index');
+    }
+
+    public function summary()
+    {
+        $userId = Auth::id();
+        $summary = Balance::getMonthlySummary($userId);
+
+        $summary = json_encode($summary);
+
+        echo($summary);
+
+
+        return view('dashboard', compact('summary'));
     }
 }
