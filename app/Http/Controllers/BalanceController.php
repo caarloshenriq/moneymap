@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBalanceRequest;
 use App\Models\Balance;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BalanceController extends Controller
@@ -32,13 +31,17 @@ class BalanceController extends Controller
     public function summary()
     {
         $userId = Auth::id();
-        $summary = Balance::getMonthlySummary($userId);
+        $summary = Balance::getBalanceSummary($userId);
+        $chartData = Balance::getBalanceByMonth($userId);
 
-        $summary = json_encode($summary);
+        $summary = $summary->isNotEmpty() ? $summary->first()->toArray() : [
+            'expense' => 0,
+            'revenue' => 0,
+            'balance' => 0
+        ];
+        
 
-        echo($summary);
-
-
-        return view('dashboard', compact('summary'));
+        return view('dashboard', compact('summary', 'chartData'));
     }
+
 }

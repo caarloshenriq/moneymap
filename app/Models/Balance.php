@@ -32,16 +32,24 @@ class Balance extends Model
      * @param int $userId
      * @return \Illuminate\Support\Collection
      */
-    public static function getMonthlySummary(int $userId)
+    public static function getBalanceSummary(int $userId)
     {
         return self::selectRaw("
-                DATE_FORMAT(date, '%Y-%m') as month,
-                SUM(CASE WHEN type = 'P' THEN amount ELSE 0 END) as total_entries,
-                SUM(CASE WHEN type = 'E' THEN amount ELSE 0 END) as total_exits
-            ")
+        SUM(CASE WHEN type = 'E' THEN amount ELSE 0 END) AS expense,
+        SUM(CASE WHEN type = 'P' THEN amount ELSE 0 END) AS revenue,
+        SUM(amount) AS balance")
+            ->where('user_id', $userId)
+            ->get();
+    }
+
+    public static function getBalanceByMonth(int $userId)
+    {
+        return self::selectRaw("
+        SUM(CASE WHEN type = 'E' THEN amount ELSE 0 END) AS expense,
+        SUM(CASE WHEN type = 'P' THEN amount ELSE 0 END) AS revenue,
+        MONTH(date) AS month")
             ->where('user_id', $userId)
             ->groupBy('month')
-            ->orderBy('month', 'desc')
             ->get();
     }
 }
